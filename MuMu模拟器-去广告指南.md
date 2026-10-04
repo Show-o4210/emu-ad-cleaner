@@ -1,308 +1,80 @@
 # MuMu 模拟器去广告指南
 
-适用版本：MuMu 模拟器 12（本机实测路径 `D:\MuMu\MuMuPlayer`，Android 12 实例）  
-方法与「雷电模拟器去广告」同类：**ADB 卸载/禁用内置广告应用** + **清理 Windows 端广告缓存**。  
-MuMu 系统盘在 Root 开启时通常可写，**可直接删除系统分区中的应用商店 APK**（比雷电更彻底）。
+## 一、先做这几步
 
----
+1. 在 MuMu 多开器中备份要处理的实例。
+2. **不要禁用、隐藏或删除 `com.mumu.store`。**旧指南中这一组操作会破坏部分版本的原生拖入安装，旧的一键删除脚本已撤下。
+3. 如果需要去掉商店广告并保留拖入普通 APK，按 [MuMu 拖拽安装修复](MuMu拖拽安装修复.md) 的第一节下载并安装最小安装器。
+4. 该工具仅验证过 MuMu 6.8.2.0 / 引擎 15.8.2.5699 / Android 15 / 商店 9.2.25（1225）；Android 12 或其他版本先不要套用工具，临时使用修复文档中的 ADB 安装方法。
+5. 如果之前已经清理商店，按修复文档的第二节恢复原系统包或用户状态，再安装工具。
+6. 每个多开实例单独处理，操作前核对实例编号。
 
-## 一、广告从哪来
+安装、恢复、故障处理均在修复文档前半部分，不需要阅读原理。
 
-| 位置 | 组件 / 路径 | 表现 |
-|------|-------------|------|
-| 安卓系统内 | `com.mumu.store`（MuMu 应用中心，`/system/priv-app/com.mumu.store`） | 桌面商店图标、应用内推广 |
-| 安卓系统内 | `com.nemu.oaidmanager` | OAID / 标识相关设置入口 |
-| 安卓系统内 | 官方桌面（旧版常为 `com.mumu.launcher*`） | 桌面推荐位；本机已用 Lawnchair 替代 |
-| Windows 客户端 | `%AppData%\Netease\MuMuPlayer\data\ProgramAds` | 程序内广告资源 |
-| Windows 客户端 | `%AppData%\Netease\MuMuPlayer\data\startupImage` | 启动/换肤类图片广告 |
-| Windows 客户端 | `%AppData%\Netease\MuMuPlayer\data\msgCenter` | 消息中心推送缓存 |
+## 二、可选：清理 Windows 客户端广告缓存
 
-**建议保留（非广告主因）：**
+此步骤与拖拽修复独立。**先退出全部 MuMu 窗口和多开器**，再在 PowerShell 中执行。目录不存在会跳过；这些是旧版本使用过的缓存路径，不保证适用于每个新版本。
 
-| 包名 | 说明 |
-|------|------|
-| `com.netease.mumu.cloner` | 应用多开 |
-| `com.mumu.shared.sdk` | 系统共享 SDK |
-| `com.mumu.acc` | 账号相关组件 |
-| `nemu-vinput-pack` / `com.nemu.nlp` 等 | 输入法、能力组件 |
-
----
-
-## 二、准备
-
-1. 启动要清理的 MuMu 实例（多开器用「启动」）。
-2. 设置中打开 **Root 权限**（删除系统商店 APK 需要）。
-3. 使用安装目录自带工具（推荐）：
+下面将三个指定广告缓存目录改名备份，不删除整个 `data` 目录。客户端再次联网后可能重新生成广告缓存。
 
 ```powershell
-cd D:\MuMu\MuMuPlayer\nx_main
-.\MuMuManager.exe info -v all
-.\MuMuManager.exe adb -v 0 -c connect
-```
-
-常见 ADB 地址：`127.0.0.1:16384`（实例 0，端口以实际为准）。
-
-```powershell
-.\adb.exe connect 127.0.0.1:16384
-.\adb.exe devices
-```
-
-下文用变量：
-
-```powershell
-$s = "127.0.0.1:16384"   # 按 adb devices 修改
-```
-
-查看 Root：
-
-```powershell
-.\adb.exe -s $s shell "su -c id"
-# 期望：uid=0(root)
-```
-
----
-
-## 三、安卓侧：去掉 MuMu 应用中心（核心）
-
-### 3.1 当前用户卸载 + 禁用 + 隐藏
-
-```powershell
-cd D:\MuMu\MuMuPlayer\nx_main
-$s = "127.0.0.1:16384"
-
-# 若有用户层更新包
-.\adb.exe -s $s uninstall com.mumu.store
-
-# 对当前用户卸载（系统应用常用）
-.\adb.exe -s $s shell pm uninstall --user 0 com.mumu.store
-
-# 禁用
-.\adb.exe -s $s shell pm disable-user --user 0 com.mumu.store
-.\adb.exe -s $s shell am force-stop com.mumu.store
-
-# Root 下隐藏 + 全局禁用
-.\adb.exe -s $s shell "su -c 'pm hide com.mumu.store; pm disable com.mumu.store'"
-```
-
-### 3.2 物理删除系统商店（Root + 可写系统盘，推荐）
-
-```powershell
-.\adb.exe -s $s shell "su -c 'mount -o remount,rw /system; rm -rf /system/priv-app/com.mumu.store; rm -rf /data/data/com.mumu.store /data/user/0/com.mumu.store; ls /system/priv-app | grep mumu'"
-```
-
-成功后 `ls` 中不应再有 `com.mumu.store`。
-
-### 3.3 可选：禁用 OAID 管理（减少追踪入口）
-
-```powershell
-.\adb.exe -s $s shell pm disable-user --user 0 com.nemu.oaidmanager
-.\adb.exe -s $s shell am force-stop com.nemu.oaidmanager
-.\adb.exe -s $s shell "su -c 'pm hide com.nemu.oaidmanager; pm disable com.nemu.oaidmanager'"
-```
-
-### 3.4 验证
-
-```powershell
-# 启动器中不应再出现 com.mumu.store
-.\adb.exe -s $s shell "cmd package query-activities -a android.intent.action.MAIN -c android.intent.category.LAUNCHER"
-
-# 状态：installed=false / enabled 为禁用
-.\adb.exe -s $s shell dumpsys package com.mumu.store
-
-# 路径应失败或无输出
-.\adb.exe -s $s shell pm path com.mumu.store
-```
-
-期望：
-
-- 桌面无「MuMu 应用中心 / 商店」
-- `User 0: ... installed=false ...`
-- `/system/priv-app/` 下无 `com.mumu.store` 目录（若已做 3.2）
-
-### 3.5 关于官方桌面广告
-
-若仍使用官方桌面且底部有推荐位，可：
-
-- 安装第三方桌面（如 Lawnchair）并设为默认；或  
-- 参考社区方案替换 `/system/priv-app` 下桌面 APK（需 Root，有风险）。
-
-本机实例已使用 `app.lawnchair`，桌面侧推广位问题通常已规避。
-
----
-
-## 四、Windows 侧：清客户端广告缓存
-
-### 4.1 主要目录
-
-| 目录 | 作用 |
-|------|------|
-| `%AppData%\Netease\MuMuPlayer\data\ProgramAds` | 程序广告资源 |
-| `%AppData%\Netease\MuMuPlayer\data\startupImage` | 启动相关图片 |
-| `%AppData%\Netease\MuMuPlayer\data\msgCenter` | 消息中心缓存 |
-| `%AppData%\Netease\MuMuPlayer\data\fcount\` | 统计（含 store 相关 ini） |
-
-### 4.2 清理脚本（PowerShell）
-
-```powershell
-$base = "$env:APPDATA\Netease\MuMuPlayer\data"
-
-foreach ($dir in @("ProgramAds", "msgCenter")) {
-  $p = Join-Path $base $dir
-  if (Test-Path $p) {
-    Get-ChildItem $p -Recurse -File -Force -ErrorAction SilentlyContinue |
-      Remove-Item -Force -ErrorAction SilentlyContinue
-    Write-Host "cleared $dir"
-  }
-}
-
-$startup = Join-Path $base "startupImage"
-if (Test-Path $startup) {
-  Get-ChildItem $startup -Recurse -Force -ErrorAction SilentlyContinue | ForEach-Object {
-    try { $_.Attributes = 'Normal' } catch {}
-  }
-  Get-ChildItem $startup -Directory -Force -ErrorAction SilentlyContinue |
-    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
-  $im = Join-Path $startup "imageManager.json"
-  if (Test-Path $im) {
-    Set-ItemProperty $im -Name IsReadOnly -Value $false -ErrorAction SilentlyContinue
-    Set-Content $im -Value '{"images":[],"list":[]}' -Encoding UTF8 -NoNewline
-    Set-ItemProperty $im -Name IsReadOnly -Value $true
-  }
-  Write-Host "cleared startupImage"
-}
-
-$fstore = Join-Path $base "fcount\fcountData_store.ini"
-if (Test-Path $fstore) {
-  Set-Content $fstore -Value "" -Encoding ASCII -NoNewline
-  Write-Host "emptied fcountData_store.ini"
+$cacheBase = Join-Path $env:APPDATA 'Netease\MuMuPlayer\data'
+$stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+if (Test-Path -LiteralPath $cacheBase) {
+    $resolvedBase = (Resolve-Path -LiteralPath $cacheBase).Path.TrimEnd('\')
+    foreach ($name in @('ProgramAds', 'startupImage', 'msgCenter')) {
+        $source = Join-Path $resolvedBase $name
+        $destination = Join-Path $resolvedBase ($name + '.backup-' + $stamp)
+        if (-not (Test-Path -LiteralPath $source -PathType Container)) { continue }
+        $resolvedSource = (Resolve-Path -LiteralPath $source).Path
+        if ([IO.Path]::GetDirectoryName($resolvedSource) -ne $resolvedBase) {
+            throw '缓存目录不在预期位置，已停止。'
+        }
+        if (Test-Path -LiteralPath $destination) { throw '备份目录已存在，已停止。' }
+        Move-Item -LiteralPath $resolvedSource -Destination $destination
+        Write-Host "已备份 $name"
+    }
 }
 ```
 
-说明：客户端联网后可能再次下载启动图；可重复执行本段。
+完成后重新启动 MuMu。若要恢复缓存，先退出 MuMu，把对应 `.backup-时间` 文件夹改回原名；若原名已经被客户端重新创建，先把新目录另行改名，避免覆盖。
+
+## 三、操作后检查
+
+- 普通 APK 拖入目标实例后能安装。
+- 使用最小安装器时，商店图标和商店广告小部件不再出现。
+- `com.mumu.store` 仍然是已安装、已启用的包；它承载替代安装服务，不应再被清理。
+- 应用多开、键位与共享文件夹照常使用；不要清理这些功能的组件。
+- 重启实例再试一次。MuMu 升级可能覆盖替代包，需先核对版本再决定是否重装工具。
+
+## 四、恢复与常见问题
+
+**装了最小安装器，想恢复商店：**双击工具包里的 `Restore.cmd`，选对应实例，完成后重启。
+
+**之前隐藏/卸载过商店，或者删过系统 APK：**按 [先前已经清理过商店](MuMu拖拽安装修复.md#二先前已经清理过商店) 处理，不能继续删文件来修复拖拽。
+
+**桌面仍有推荐内容：**顶部搜索栏等属于定制桌面的独立模块。当前内置 `app.lawnchair` 已有 MuMu 广告代码；仅看到这个包名不能判断它是干净的第三方桌面。本仓库没有验证过用替换系统桌面 APK 的方法修复这些内容。
+
+**ADB 能装，拖入不能装：**这是两条不同安装通道。保留多开组件不能代替原生拖拽所需的商店安装服务。详见 [故障处理](MuMu拖拽安装修复.md#三遇到问题就按这里处理)。
 
 ---
 
-## 五、一键脚本参考
+**以上是操作。下面只说明广告来源与本次调查范围。**
 
-将端口/路径按本机修改，**先启动实例 0**，再在 PowerShell 中运行：
+## 五、广告来源与保留组件
 
-```powershell
-# MuMu 去广告脚本（示例，实例 0）
-$LD_MAIN = "D:\MuMu\MuMuPlayer\nx_main"
-$INDEX   = 0
+| 位置 | 组件 | 本次确认的关系 |
+|---|---|---|
+| 安卓内 | `com.mumu.store` | 原商店同时提供广告小部件和拖拽安装服务，整包禁用会一并切断服务 |
+| 安卓桌面 | MuMu 定制 `app.lawnchair` | 承载商店小部件，也有独立的推广搜索栏、弹窗逻辑 |
+| Windows 客户端 | `ProgramAds` / `startupImage` / `msgCenter` 等缓存 | 与 Android 安装服务独立，路径可能随版本变化 |
 
-Set-Location $LD_MAIN
-& .\MuMuManager.exe adb -v $INDEX -c connect | Out-Null
-$info = & .\MuMuManager.exe adb -v $INDEX -c connect 2>&1 | Out-String
-# 默认端口（若失败请 adb devices 后手写 $s）
-$s = "127.0.0.1:16384"
-& .\adb.exe connect $s | Out-Null
+保留 `com.netease.mumu.cloner`、`com.mumu.shared.sdk`、`com.mumu.acc`、输入法和输入能力组件。OAID 管理与本次拖拽修复无关，新的默认操作不再把它作为必做项。
 
-# 安卓：应用中心
-& .\adb.exe -s $s uninstall com.mumu.store 2>$null
-& .\adb.exe -s $s shell pm uninstall --user 0 com.mumu.store
-& .\adb.exe -s $s shell pm disable-user --user 0 com.mumu.store
-& .\adb.exe -s $s shell am force-stop com.mumu.store
-& .\adb.exe -s $s shell "su -c 'pm hide com.mumu.store; pm disable com.mumu.store; mount -o remount,rw /system; rm -rf /system/priv-app/com.mumu.store; rm -rf /data/data/com.mumu.store /data/user/0/com.mumu.store'" 2>$null
+## 六、调查范围与旧文档修正
 
-# 可选 OAID
-& .\adb.exe -s $s shell pm disable-user --user 0 com.nemu.oaidmanager 2>$null
-& .\adb.exe -s $s shell "su -c 'pm hide com.nemu.oaidmanager; pm disable com.nemu.oaidmanager'" 2>$null
+2026-10-04 的新实测环境是 **MuMu 6.8.2.0、引擎 15.8.2.5699、Android 15**，并非旧文档记录的 Android 12。下载渠道名含有 `mumu12` 不能直接证明实例运行 Android 12，应以多开器/管理工具显示的 Android 版本为准。
 
-# Windows 缓存
-$base = "$env:APPDATA\Netease\MuMuPlayer\data"
-foreach ($dir in @("ProgramAds", "msgCenter")) {
-  $p = Join-Path $base $dir
-  if (Test-Path $p) {
-    Get-ChildItem $p -Recurse -File -Force -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
-  }
-}
-$startup = Join-Path $base "startupImage"
-if (Test-Path $startup) {
-  Get-ChildItem $startup -Directory -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
-  $im = Join-Path $startup "imageManager.json"
-  if (Test-Path $im) {
-    Set-ItemProperty $im -Name IsReadOnly -Value $false -ErrorAction SilentlyContinue
-    Set-Content $im -Value '{"images":[],"list":[]}' -Encoding UTF8 -NoNewline
-    Set-ItemProperty $im -Name IsReadOnly -Value $true
-  }
-}
+在同一 APK、同一实例上，真实拖拽的结果为：原商店启用时成功，禁用后失败，恢复后再次成功。最小安装器也通过了用户真实拖入、共享目录挂载、重启后安装与回退测试。完整记录见 [修复文档](MuMu拖拽安装修复.md#五验证记录2026-10-04)。
 
-Write-Host "完成。请检查 MuMu 桌面是否已无应用中心。"
-```
-
----
-
-## 六、多开实例
-
-本机存在实例 `0`、`1` 时，ADB 端口不同。对每个**已启动**实例：
-
-```powershell
-.\MuMuManager.exe adb -v 1 -c connect
-.\adb.exe devices
-# 对对应 127.0.0.1:端口 重复第三节
-```
-
-新建实例或重置后，系统商店可能从基础镜像恢复，需再执行第三节。
-
----
-
-## 七、效果自检
-
-- [ ] 桌面无 MuMu 应用中心 / 商店图标  
-- [ ] 启动器查询无 `com.mumu.store`  
-- [ ] `/system/priv-app/` 无 `com.mumu.store`（若已物理删除）  
-- [ ] 多开、键位、共享文件夹等正常  
-- [ ] 客户端启动图/程序广告减弱或消失（可配合第四节重复清理）  
-
----
-
-## 八、常见问题
-
-**Q：`pm uninstall` 失败 `DELETE_FAILED_INTERNAL_ERROR`？**  
-A：系统应用直接 `uninstall` 常失败；用 `pm uninstall --user 0` 或 Root 删除 `/system/priv-app/com.mumu.store`。
-
-**Q：系统盘 remount 失败？**  
-A：先在 MuMu 设置中打开 Root；仍失败则至少做「当前用户卸载 + disable + hide」。
-
-**Q：会不会影响多开 / 安装 APK？**  
-A：删除商店不影响从电脑拖入 APK 或 `adb install`。保留 `com.netease.mumu.cloner` 即可继续用应用多开。
-
-**Q：启动图又回来了？**  
-A：客户端会重新拉取 `startupImage`，重复第四节即可。
-
-**Q：如何恢复应用中心？**  
-A：系统 APK 已删时，只能重装/修复 MuMu 或从备份镜像恢复；若仅禁用未删文件：
-
-```powershell
-.\adb.exe -s $s shell "su -c 'pm unhide com.mumu.store; pm enable com.mumu.store'"
-.\adb.exe -s $s shell cmd package install-existing com.mumu.store
-```
-
----
-
-## 九、操作摘要（最短版）
-
-1. 启动 MuMu → `MuMuManager.exe adb -v 0 -c connect` → 确认 `adb devices`  
-2. `pm uninstall --user 0 com.mumu.store` + `disable-user` + Root `hide`  
-3. Root：`rm -rf /system/priv-app/com.mumu.store`  
-4. 可选：禁用 `com.nemu.oaidmanager`  
-5. 清理 `%AppData%\Netease\MuMuPlayer\data` 下 `ProgramAds` / `startupImage` / `msgCenter`  
-6. **不要**禁用 `cloner`、`shared.sdk` 等核心组件  
-
----
-
-## 十、本机实测结果（参考）
-
-| 项目 | 结果 |
-|------|------|
-| 实例 | MuMu 12.0 实例 0（`127.0.0.1:16384`） |
-| `com.mumu.store` | 用户卸载 + 禁用隐藏；**系统目录已删除** |
-| `com.nemu.oaidmanager` | 禁用 + 隐藏 |
-| 桌面启动器 | 已无商店；保留应用多开等 |
-| Windows | 已清 ProgramAds / startupImage / msgCenter |
-| 系统盘 | Root 下 `/system` 可写，物理删除成功 |
-
----
-
-*文档根据实际排障步骤整理，仅供个人学习与自用优化；Root 与删除系统应用有风险，请自行评估。*
+旧指南“删除商店不影响拖入 APK”“使用 Lawnchair 通常已经规避桌面广告”等结论不适用于本次环境，已经撤下相关默认删除流程。旧 Android 12 操作记录不能作为新工具跨版本兼容的证明。

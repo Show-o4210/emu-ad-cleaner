@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-04",
+  "version": "minimal-prototype-0.1",
+  "version_code": 1226,
+  "apk_bytes": 16787,
+  "apk_sha256": "a03ba9b5286402b4db0df9796a3bcbb82785cd49ac92f5c2ad4638235c63b43a",
+  "certificate_sha256": "c8a2e9bccf597c2fb6dc66bee293fc13f2fc47ec77bc6b2b0d52c11f51192ab8",
+  "environment": {"emulator": "6.8.2.0", "engine": "15.8.2.5699", "android": 15, "original_store": "9.2.25", "original_store_version_code": 1225, "root_switch": false},
+  "tests": [
+    {"name": "original and prototype APK signature verification", "result": "passed"},
+    {"name": "system package update and UID 1000 INSTALL_PACKAGES privilege", "result": "passed"},
+    {"name": "ordinary APK installation through service", "result": "passed"},
+    {"name": "actual drag into native MuMu window, confirmed by user and host/Android logs", "result": "passed"},
+    {"name": "dynamic shared-folder mount", "result": "passed"},
+    {"name": "damaged APK and invalid mount identifier rejection", "result": "passed"},
+    {"name": "installation after emulator restart", "result": "passed"},
+    {"name": "rollback to original system store", "result": "passed"},
+    {"name": "store advertising widget providers disappear", "result": "passed"},
+    {"name": "Windows PowerShell 5.1 deployment wrapper: install, check, restore, reinstall", "result": "passed"},
+    {"name": "automatic recovery of disabled-user store state before installation", "result": "passed"},
+    {"name": "automatic recovery of user-0 uninstalled store state before installation, then service APK installation", "result": "passed"}
+  ],
+  "unverified": ["Android 12", "secondary users", "drag with MuMu ADB switch disabled", "permanent removal of customized launcher search advertisements"],
+  "not_implemented": ["APKS", "XAPK", "OBB"]
+}

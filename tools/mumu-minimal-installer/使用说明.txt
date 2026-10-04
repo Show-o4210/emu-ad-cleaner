@@ -1,0 +1,30 @@
+MuMu 最小安装器 0.1（普通 APK）
+
+只验证过：MuMu 6.8.2.0 / 引擎 15.8.2.5699 / Android 15 / 原商店 9.2.25（版本号 1225）。
+Root 开关可以保持关闭。暂不支持 APKS、XAPK、OBB。
+
+安装：
+1. 在多开器中备份要操作的实例，然后启动它，等到安卓桌面出现。
+2. MuMu 设置中打开 ADB 调试，选“本地连接”。
+3. 完整解压本 ZIP，不要直接在压缩包内运行。
+4. 双击 Install.cmd，在窗口里输入要操作的实例编号。
+5. 出现“最小安装器已安装”后重启该实例，再把普通 APK 拖入 MuMu 窗口。
+6. 不要再执行禁用、隐藏或删除 com.mumu.store 的旧步骤。
+
+恢复：双击 Restore.cmd，输入实例编号，看到“原商店已恢复”后重启。
+恢复可能重置商店自己的数据。实验中没有删除已安装的测试时钟。
+
+若提示版本不支持：不要强行绕过检查，先用 adb install 临时安装应用。
+若提示商店 APK 不完整：先备份实例，再修复或新建实例。
+若提示商店被隐藏：按在线文档“先前已经清理过商店”一节恢复。
+顶部搜索栏、Windows 启动广告仍属于其他模块，本工具不保证消除全部广告。
+
+完整操作、故障处理和原理：
+https://github.com/Show-o4210/emu-ad-cleaner/blob/main/MuMu拖拽安装修复.md
+
+只检查，不更新商店（在 PowerShell 中）：
+powershell -NoProfile -ExecutionPolicy Bypass -File .\Manage-Installer.ps1 -Action Check
+
+源码位于 src。构建需要 Python、JDK 与官方 Android SDK；详细步骤见在线文档后半部分。
+build.py 可通过 MUMU_ANDROID_SDK_ROOT、MUMU_TEST_KEY_DIR 指定工具和公开测试签名材料位置。
+运行时在 Android 内执行 pm install，不调用 Windows adb。关闭 MuMu ADB 开关后的拖拽未单独测试。

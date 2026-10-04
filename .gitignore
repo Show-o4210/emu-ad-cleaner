@@ -1,0 +1,3 @@
+tools/mumu-minimal-installer/build/
+tools/mumu-minimal-installer/dist/
+**/__pycache__/

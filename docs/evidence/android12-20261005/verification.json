@@ -1,0 +1,141 @@
+{
+  "date": "2026-10-05",
+  "environment": {
+    "emulator": "6.8.2.0",
+    "android": "12",
+    "sdk": 32,
+    "build": "V417R release-keys",
+    "original_store": "9.2.25",
+    "original_store_version_code": 1225,
+    "root_switch": false
+  },
+  "test_apk": {
+    "filename": "org.fossify.clock_10.apk",
+    "package": "org.fossify.clock",
+    "version": "1.6.0",
+    "version_code": 10,
+    "sha256": "43cf9f0ec45f1f1ff2df47286622e5b8f3acedaeb07b7f7641b5243dbedca079"
+  },
+  "installer_apk_sha256": "a03ba9b5286402b4db0df9796a3bcbb82785cd49ac92f5c2ad4638235c63b43a",
+  "method": "Human drag into native MuMu window; Android ADB screenshots and package/log checks. ADB used for preparation and observation, not installation of the dragged clock.",
+  "user_confirmations": {
+    "original": "拖入后安装成功",
+    "disabled": "拖入后失败或无反应",
+    "restored": "拖入安装已恢复成功",
+    "minimal": "拖入后安装成功",
+    "minimal_after_restart": "重启后拖入安装成功"
+  },
+  "states": {
+    "original_drag_success": {
+      "version_code": 1225,
+      "version_name": "9.2.25",
+      "uid": 1000,
+      "installed": true,
+      "hidden": false,
+      "enabled": 0,
+      "clock_installed": true
+    },
+    "disabled_drag_failure": {
+      "version_code": 1225,
+      "version_name": "9.2.25",
+      "uid": 1000,
+      "installed": true,
+      "hidden": false,
+      "enabled": 3,
+      "clock_installed": false
+    },
+    "restored_drag_success": {
+      "version_code": 1225,
+      "version_name": "9.2.25",
+      "uid": 1000,
+      "installed": true,
+      "hidden": false,
+      "enabled": 0,
+      "clock_installed": true
+    },
+    "minimal_drag_success": {
+      "version_code": 1226,
+      "version_name": "minimal-prototype-0.1",
+      "uid": 1000,
+      "installed": true,
+      "hidden": false,
+      "enabled": 0,
+      "clock_installed": true
+    },
+    "rollback": {
+      "version_code": 1225,
+      "version_name": "9.2.25",
+      "uid": 1000,
+      "installed": true,
+      "hidden": false,
+      "enabled": 0,
+      "clock_installed": true
+    },
+    "post_restart_drag_success": {
+      "version_code": 1226,
+      "version_name": "minimal-prototype-0.1",
+      "uid": 1000,
+      "installed": true,
+      "hidden": false,
+      "enabled": 0,
+      "clock_installed": true
+    }
+  },
+  "screenshots": [
+    {
+      "file": "01-version.png",
+      "sha256": "db21daf72caafc636e69904c493a0c60edf2af41aefe841e33882932f429140c"
+    },
+    {
+      "file": "02-original-success.png",
+      "sha256": "4a5748adab5e8d4be411b51e6f698fee4b5afa6f75f9101532911d325758d65a"
+    },
+    {
+      "file": "03-disabled-failure.png",
+      "sha256": "76e8ddb774cb119f15e75e4b71143a67992470bc67dfb00bcf4395de36153152"
+    },
+    {
+      "file": "04-restored-success.png",
+      "sha256": "241866f1d6c3eb55ae575d8e8bb2804c2075f9d6b0171a08bcb682fd481ffec7"
+    },
+    {
+      "file": "05-minimal-success.png",
+      "sha256": "712fe5a250946cdd2542ff2d48857b235513199e0ee5ff2878bf45eb1ca3c400"
+    },
+    {
+      "file": "06-restart-installing.png",
+      "sha256": "4b23cd3f06a5f96532e37de33565d4d01fafbcbb0eb0fda4cac2ef3eae0709d0"
+    },
+    {
+      "file": "07-restart-completed.png",
+      "sha256": "71e23548991e6f0a349ca9773f1db96d481135c435f005f0a89e3cd318693bb8"
+    },
+    {
+      "file": "08-clock-running.png",
+      "sha256": "47367a12d20bac3cb63c7aeac66f5043a86d1110cce7858bac591815c7e213a0"
+    }
+  ],
+  "store_comparison": {
+    "android12_store_apk_sha256": "65cb338b0bae28280d978553dc5cf7853b642da4a80adc4f56d1d3bb785fbc30",
+    "android15_store_apk_sha256": "e58de2b7296a597a4344f93ff15fda12364ebcd088bc5ca7ce308a7098c3f9a0",
+    "dex_comparison": [
+      {
+        "entry": "classes.dex",
+        "android15_sha256": "fe364ca8cefd138f9556ac0979d30f34266793e5cdfe0dac27aa0af76a6fa7c7",
+        "android12_sha256": "fe364ca8cefd138f9556ac0979d30f34266793e5cdfe0dac27aa0af76a6fa7c7",
+        "identical": true
+      },
+      {
+        "entry": "classes2.dex",
+        "android15_sha256": "98595d5009f5abcebf69498d1049c54dd413028db4d9e39490b7e183103cd061",
+        "android12_sha256": "98595d5009f5abcebf69498d1049c54dd413028db4d9e39490b7e183103cd061",
+        "identical": true
+      }
+    ]
+  },
+  "limits": [
+    "This is Android 12 under MuMu client 6.8.2.0, not every historical MuMu 12 client.",
+    "Other store versions, APKS/XAPK/OBB, secondary Android users and ADB-switch-off drag are not covered.",
+    "The native customized launcher search advertisement is separate; removal is not guaranteed."
+  ]
+}

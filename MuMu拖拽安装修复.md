@@ -2,13 +2,15 @@
 
 ## 一、直接照做
 
-本工具目前只验证过 **MuMu 6.8.2.0、引擎 15.8.2.5699、Android 15、原商店 9.2.25（版本号 1225）**。只支持普通 `.apk`。安装脚本会检查 Android 与商店版本，版本不符会停止。**不要先删除系统商店，也不要再执行旧指南的商店禁用、隐藏或删除步骤。**
+本工具已验证 **MuMu 6.8.2.0 下的 Android 12（SDK 32）和 Android 15，原商店均为 9.2.25（版本号 1225）**。这不代表兼容所有历史 MuMu 12 客户端；其他商店版本仍会停止。只支持普通 `.apk`。安装脚本会检查 Android 与商店版本，版本不符会停止。**不要先删除系统商店，也不要再执行旧指南的商店禁用、隐藏或删除步骤。**
 
 ### 1. 下载并解压
 
-1. 打开 [最小安装器 0.1 下载页](https://github.com/Show-o4210/emu-ad-cleaner/releases/tag/mumu-minimal-installer-v0.1)。
-2. 在 Assets 中下载 **`mumu-minimal-installer-0.1-windows.zip`**。
+1. 打开 [部署包 0.1.1 下载页](https://github.com/Show-o4210/emu-ad-cleaner/releases/tag/mumu-minimal-installer-v0.1.1)。
+2. 在 Assets 中下载 **`mumu-minimal-installer-0.1.1-windows.zip`**。
 3. 右键 ZIP，选择“全部解压”。不要在压缩包内直接运行，也不要下载页面底部的 `Source code` 代替工具包。
+
+0.1.1 更新了 Windows 部署脚本以支持已验证的 Android 12；安装器 APK 仍是同一份 0.1，源码与散列不变。
 
 解压后应该能看到 `Install.cmd`、`Restore.cmd` 和 `build` 文件夹。
 
@@ -108,7 +110,7 @@ $s = '127.0.0.1:16384'
 
 ## 四、为什么原来会坏，为什么这个工具能保留拖拽
 
-在本次 Android 15 环境中，原生拖拽链路是：
+在本次 Android 12 和 Android 15 环境中，原生拖拽都依赖以下服务入口：
 
 ```text
 Windows 拖入 APK
@@ -124,7 +126,7 @@ Windows 拖入 APK
 Unable to start service Intent { cmp=com.mumu.store/.install.InstallLocalApkService (has extras) } U=0: not found
 ```
 
-旧文档“删除商店不影响从电脑拖入 APK”的说法已纠正；本次测试不能倒推所有 Android 12 版本的具体实现。
+旧文档“删除商店不影响从电脑拖入 APK”的说法已纠正；Android 12 的独立实测见 [图文验证记录](MuMu-Android12验证记录.md)，不能据此倒推所有历史客户端版本。
 
 本工具是独立编写的兼容服务，不是对原商店 APK 的广告代码打补丁。它保留包名、服务名和原 Binder 接口，接收 `apk_path`，或 `mount_name` + `apk_name`，然后在 Android 内完成共享目录挂载和 `pm install`。
 
@@ -140,9 +142,9 @@ c8a2e9bccf597c2fb6dc66bee293fc13f2fc47ec77bc6b2b0d52c11f51192ab8
 
 运行时安装代码不调用宿主 ADB；ADB 用于部署和排障。**关闭 MuMu ADB 开关后的实际拖拽尚未单独测试**，不要据此承诺所有版本都能关闭它。
 
-## 五、验证记录（2026-10-04）
+## 五、验证记录（2026-10-04 / 2026-10-05）
 
-测试在新建隔离实例中进行，Root 开关始终关闭；原实例未安装替代包。
+Android 15 使用新建隔离实例，Android 12 使用用户启动的独立实例，两者 Root 开关均关闭。Android 12 的过程截图、日志摘录和包状态见 [图文验证记录](MuMu-Android12验证记录.md)。
 
 | 检查 | 结果 |
 |---|---|
@@ -157,7 +159,9 @@ c8a2e9bccf597c2fb6dc66bee293fc13f2fc47ec77bc6b2b0d52c11f51192ab8
 | 商店广告小部件注册消失 | 通过 |
 | Windows PowerShell 5.1 安装、检查、恢复、重装入口 | 通过 |
 | 旧禁用 / 用户卸载状态自动恢复后安装 | 通过 |
-| Android 12、次用户、关闭 ADB 开关、搜索广告永久清除 | 未验证 |
+| Android 12 原商店启用 / 禁用 / 恢复后的真实拖拽 | 成功 / 失败 / 成功 |
+| Android 12 最小安装器真实拖拽、重启后真实拖拽、回退原商店 | 通过；附图文记录 |
+| 其他历史客户端、次用户、关闭 ADB 开关、搜索广告永久清除 | 未验证 |
 
 原型 APK 大小为 16,787 字节，SHA-256：
 

@@ -69,7 +69,7 @@ try {
     $selected = @($players | Where-Object { [string]$_.index -eq [string]$Index })
     if ($selected.Count -ne 1) { throw '该编号不在已启动实例列表中。' }
     $player = $selected[0]
-    if ($player.android_version -notmatch '^15(?:\.|$)') { throw '这个版本仅验证过 Android 15，不能用于 Android 12 实例。请阅读文档中的临时安装方法。' }
+    if ($player.android_version -notmatch '^(12|15)(?:\.|$)') { throw '这个部署包仅验证过 Android 12 / 15 实例。请阅读文档中的临时安装方法。' }
     if ($player.adb_host_ip -ne '127.0.0.1' -or [int]$player.adb_port -lt 1024 -or [int]$player.adb_port -gt 65535) { throw '实例的本地 ADB 地址无效。' }
     $script:serial = '127.0.0.1:' + $player.adb_port
     $connect = & $adbPath connect $serial 2>&1 | Out-String

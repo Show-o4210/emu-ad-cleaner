@@ -1,0 +1,7 @@
+# Relevant Android log lines only; shared-folder mount ID replaced with <mount-id>.
+10-05 03:03:34.224  1290  1324 W ActivityManager: Unable to start service Intent { cmp=com.mumu.store/.install.InstallLocalApkService (has extras) } U=0: not found
+10-05 03:03:37.145  1290  1324 W ActivityManager: Unable to start service Intent { cmp=com.mumu.store/.install.InstallLocalApkService (has extras) } U=0: not found
+10-05 03:07:29.871  2649  2649 I MuMuMinimalInstaller: {"time":1791140849871,"event":"service-created","detail":"uid=1000"}
+10-05 03:07:29.872  2649  2666 I MuMuMinimalInstaller: {"time":1791140849872,"event":"request","detail":"#Intent;component=com.mumu.store\/.install.InstallLocalApkService;S.apk_path=%2Fmnt%2Fshared%2F<mount-id>%2Forg.fossify.clock_10.apk;end"}
+10-05 03:07:29.878  2649  2666 I MuMuMinimalInstaller: {"time":1791140849878,"event":"install-start","detail":"\/mnt\/shared\/<mount-id>\/org.fossify.clock_10.apk","package":"org.fossify.clock"}
+10-05 03:07:30.484  2649  2666 I MuMuMinimalInstaller: {"time":1791140850484,"event":"install-success","detail":"Success","package":"org.fossify.clock"}

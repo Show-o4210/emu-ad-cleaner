@@ -13,3 +13,7 @@
 
 - [MuMu 最小安装器下载](https://github.com/Show-o4210/emu-ad-cleaner/releases/tag/mumu-minimal-installer-v0.1.1)
 - [MuMu 最小安装器源码](tools/mumu-minimal-installer)
+
+## 许可证
+
+本仓库原创代码与文档采用 [MIT License](LICENSE) 开源。第三方软件、商标及其组件的权利归各自权利人所有。

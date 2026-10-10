@@ -1,7 +1,8 @@
 {
   "date": "2026-10-10",
   "bundle_version": "0.1.2",
-  "release_status": "local build; not published",
+  "release_status": "prerelease",
+  "release_url": "https://github.com/Show-o4210/emu-ad-cleaner/releases/tag/mumu-minimal-installer-v0.1.2",
   "scope": "Windows deployment scripts only; validated APK 0.1 unchanged",
   "apk_sha256": "a03ba9b5286402b4db0df9796a3bcbb82785cd49ac92f5c2ad4638235c63b43a",
   "historical_apk_device_verification": "verification.json (2026-10-04 / 2026-10-05, deployment bundle 0.1.1)",

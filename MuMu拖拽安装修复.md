@@ -6,13 +6,11 @@
 
 ### 1. 下载并解压
 
-1. 打开 [部署包 0.1.1 下载页](https://github.com/Show-o4210/emu-ad-cleaner/releases/tag/mumu-minimal-installer-v0.1.1)。
-2. 在 Assets 中下载 **`mumu-minimal-installer-0.1.1-windows.zip`**。
+1. 打开 [部署包 0.1.2 下载页](https://github.com/Show-o4210/emu-ad-cleaner/releases/tag/mumu-minimal-installer-v0.1.2)。
+2. 在 Assets 中下载 **`mumu-minimal-installer-0.1.2-windows.zip`**。
 3. 右键 ZIP，选择“全部解压”。不要在压缩包内直接运行，也不要下载页面底部的 `Source code` 代替工具包。
 
-0.1.1 更新了 Windows 部署脚本以支持已验证的 Android 12；安装器 APK 仍是同一份 0.1，源码与散列不变。
-
-仓库中的 Windows 部署脚本已更新到 **0.1.2（尚未发布 Release）**，增加连接诊断与有限重试。上面的下载链接仍是已发布的 0.1.1，不包含这些新改动。0.1.2 继续使用同一份 0.1 APK。
+0.1.2 改进了 Windows 部署脚本的 ADB 连接诊断与有限重试；安装器 APK 仍是同一份 0.1，源码与散列不变。
 
 解压后应该能看到 `Install.cmd`、`Restore.cmd` 和 `build` 文件夹。
 

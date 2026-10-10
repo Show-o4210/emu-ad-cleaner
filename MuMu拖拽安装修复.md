@@ -12,6 +12,8 @@
 
 0.1.1 更新了 Windows 部署脚本以支持已验证的 Android 12；安装器 APK 仍是同一份 0.1，源码与散列不变。
 
+仓库中的 Windows 部署脚本已更新到 **0.1.2（尚未发布 Release）**，增加连接诊断与有限重试。上面的下载链接仍是已发布的 0.1.1，不包含这些新改动。0.1.2 继续使用同一份 0.1 APK。
+
 解压后应该能看到 `Install.cmd`、`Restore.cmd` 和 `build` 文件夹。
 
 ### 2. 准备实例
@@ -83,7 +85,11 @@ $s = '127.0.0.1:16384'
 
 | 窗口提示 / 现象 | 操作 |
 |---|---|
-| ADB 连接失败 | 打开 ADB 调试的“本地连接”；启动实例并等待安卓桌面，再运行工具 |
+| 模拟器本地端口不可达 / ADB 连接失败 | 打开 ADB 调试的“本地连接”；启动目标实例并等待安卓桌面，再运行工具 |
+| ADB Server 连接异常 / 设备 offline | 等待实例就绪后重试；若持续失败，保存窗口中的 ADB 路径、版本、目标端口、命令阶段、退出码和原始输出 |
+| 设备未授权 / 输出或命令错误 | 保存窗口输出反馈；工具不会用无限重试掩盖问题 |
+| 实例身份、进程或 ADB 地址已变化 | 重新运行并核对实例编号；工具不会自动改选其他实例或端口 |
+| 修改命令报错，随后显示当前商店状态 | 修改可能已生效；先保存输出并核对状态，不要连续盲点安装或恢复 |
 | 没有找到 MuMu | 输入包含 `nx_main` 文件夹的安装目录 |
 | 版本不支持 | 不要绕过检查；暂时使用下面的 ADB 安装命令 |
 | APK 校验失败 / 缺少 APK | 重新下载完整工具 ZIP 并解压；不要混用源码包或其他版本的 APK |
@@ -91,6 +97,8 @@ $s = '127.0.0.1:16384'
 | 安装了工具但拖入无反应 | 确认操作的是同一实例，重启后重试；不要禁用 `com.mumu.store` |
 | 拖入 APKS / XAPK 失败 | 当前版本只支持普通 APK；不要把文件改后缀伪装成 APK |
 | 更新 MuMu 后广告或商店恢复 | 更新可能覆盖替代包；先重新检查版本，兼容后再运行工具 |
+
+0.1.2 会对明确的临时连接故障最多尝试 3 次，并在重试前重新检查同一实例的身份、进程与端口。安装、启用商店、回退系统更新只执行一次；报错后只读核对状态并停止。商店版本、签名条件或目录不符时不会反复尝试。
 
 ### 临时用 ADB 安装应用
 
@@ -172,6 +180,30 @@ a03ba9b5286402b4db0df9796a3bcbb82785cd49ac92f5c2ad4638235c63b43a
 机器可读记录：[verification.json](tools/mumu-minimal-installer/verification.json)。问题来源：[issue #1](https://github.com/Show-o4210/emu-ad-cleaner/issues/1)。
 
 ## 六、开发者构建
+
+### Windows ADB 兼容性（部署脚本 0.1.2）
+
+[issue #2](https://github.com/Show-o4210/emu-ad-cleaner/issues/2) 中的 TCP 报错目前无法复现。不同 ADB 客户端共存、其他程序重启 Server 是潜在风险，**尚未证实为该 issue 的根因**，也不能据此断定游戏闪退由本工具导致。
+
+审查确认旧脚本只连接一次，失败时丢失原始 ADB 输出；Windows PowerShell 5.1 还会因原生命令的 stderr 提示提前抛出异常。0.1.2 保留 MuMu 自带 ADB、实例选择和原商店安全检查，按退出码判断原生命令，显示客户端版本和连接状态，只对明确的连接中断重复连接或查询。查询恢复与连接检查各有最多 3 次的上限，不设无限循环。
+
+脚本不执行 `adb kill-server`、不结束其他进程、不更换 ADB，也不针对 MAA 做特殊判断。不过，ADB 客户端自身存在 Server 协议版本不匹配时重启 Server 的行为；这不等于任何两份不同发行版本的 ADB 都会冲突。本次改动减少短暂故障，不能保证共享 Server 的所有程序完全互不影响。[ADB 客户端源码](https://android.googlesource.com/platform/packages/modules/adb/+/refs/tags/android-14.0.0_r27/client/adb_client.cpp)、[PowerShell 原生命令 stderr 说明](https://devblogs.microsoft.com/powershell/powershell-7-1-preview-6/)
+
+连接专项验证记录与测试范围见 [connection-verification.json](tools/mumu-minimal-installer/connection-verification.json)。原有 APK / 拖拽实机记录仍保存在 `verification.json`，不能将历史记录当成本次部署脚本的实机安装、恢复验证。
+
+2026-10-10 的连接专项测试结果：Windows PowerShell 5.1 与 PowerShell 7.6.5 各 **34/34 项模拟测试通过**；当前 Android 15 实例的 `Check` 只读检查通过，ADB 自动启动 Server 时的提示也正常处理。本次未对真实设备安装、启用或恢复商店，未测试 Android 12 的 0.1.2 部署，也未复现真实 MAA 共存故障。
+
+模拟测试使用独立的原生 `adb.exe` / `MuMuManager.exe` 测试替身，完整运行部署脚本，并检查命令日志、目标端口与修改次数；不会向真实 MuMu 转发命令。不需要 Pester 或 Android SDK。先将已验证的 0.1 APK 放到工具 `build` 目录，在工具目录运行：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\Test-Connection.ps1
+# 可选：用已有 PowerShell 7 再运行同一组测试
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\Test-Connection.ps1 -ShellPath 'C:\你的路径\pwsh.exe'
+```
+
+测试目录与原始输出会保留在系统临时目录，末尾显示路径。测试替身由 Windows PowerShell 5.1 的内置 C# 编译器生成；不修改系统 PATH 或真实模拟器。
+
+### APK 构建（本次无需重新构建）
 
 源码在 [tools/mumu-minimal-installer](tools/mumu-minimal-installer)。需要 Python 3、JDK 和官方 Android SDK；普通使用者直接下载 Release，无需构建。
 

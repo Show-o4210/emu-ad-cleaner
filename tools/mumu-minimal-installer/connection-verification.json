@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-10",
+  "bundle_version": "0.1.2",
+  "release_status": "local build; not published",
+  "scope": "Windows deployment scripts only; validated APK 0.1 unchanged",
+  "apk_sha256": "a03ba9b5286402b4db0df9796a3bcbb82785cd49ac92f5c2ad4638235c63b43a",
+  "historical_apk_device_verification": "verification.json (2026-10-04 / 2026-10-05, deployment bundle 0.1.1)",
+  "confirmed_findings": [
+    "Only one connect attempt and no get-state readiness check in 0.1.1",
+    "Connect failure discarded native output and exit code",
+    "Windows PowerShell 5.1 ErrorActionPreference=Stop terminated on harmless redirected native stderr; reproduced with an isolated native command",
+    "Read-only package queries had no recovery after transport interruption"
+  ],
+  "root_cause_of_issue_2": "unconfirmed; coexistence with MAA or other ADB clients remains a hypothesis",
+  "simulation": {
+    "runner": "tests/Test-Connection.ps1",
+    "method": "Complete production script processes with isolated native adb.exe and MuMuManager.exe test doubles; no forwarding to real devices",
+    "runs": [
+      { "shell": "Windows PowerShell 5.1.26100.8457", "passed": 34, "total": 34 },
+      { "shell": "PowerShell 7.6.5", "passed": 34, "total": 34 }
+    ],
+    "coverage": [
+      "Normal Check, Install with user-state recovery, Restore including known Success / exit 1, and already-original Restore",
+      "Harmless daemon-start and protocol-version-mismatch stderr",
+      "Temporary and persistent Server failure; transport closed during query",
+      "Emulator port unreachable with exit 0 failure text, persistent offline and offline recovery",
+      "Unknown nonzero exit, abnormal connect/get-state output, client version failure, malformed package output, permission denial and unsupported store version",
+      "Multiple running instances with exact selected serial; invalid index and non-loopback address rejected",
+      "Port change during reconnect and process change before mutation stop without switching targets",
+      "Connection failure blocks Install and Restore; read-only query failure blocks mutation",
+      "Install/Restore/user-state changes applied but replies lost: read current state and stop; never repeat mutations or report success",
+      "Post-install state query failure does not repeat installation",
+      "Unexpected rollback exit code and incorrect final system APK path rejected"
+    ],
+    "assertions": [
+      "Script exit code, diagnostic output, connection count, mutation count and final simulated version",
+      "Every connect/-s command uses only the selected serial",
+      "No global kill-server/start-server/devices commands and no repeated mutation commands"
+    ]
+  },
+  "current_device_read_only": {
+    "shell": "Windows PowerShell 5.1.26100.8457",
+    "android": "15.0",
+    "adb_client": "1.0.41 / 36.0.0-13206524 (MuMu bundled)",
+    "store_version_code": 1225,
+    "result": "Check passed, exit 0; initial automatic daemon startup notices handled correctly",
+    "actions": ["MuMuManager info", "adb version", "connect selected loopback serial", "get-state", "system APK ls", "dumpsys package com.mumu.store"],
+    "mutations": "none"
+  },
+  "static_checks": [
+    "Install.cmd and Restore.cmd retain existing Windows PowerShell 5.1 launcher and exit-code preservation; unchanged",
+    "APK hash, store version/UID/hidden checks and rollback version/path checks retained",
+    "PowerShell UTF-8 BOM retained for Windows PowerShell 5.1",
+    "git diff --check"
+  ],
+  "unverified": [
+    "Issue #2 TCP error and game restart symptom reproduction",
+    "Real MAA/other-client coexistence and externally interrupted real ADB Server",
+    "0.1.2 real-device Install/Restore and Android 12 checks (only Android 15 available this session)",
+    "Other historical MuMu/client/store versions"
+  ],
+  "limitations": [
+    "Retries are bounded by attempt count, not a global native-command timeout",
+    "No explicit global Server reset; bundled ADB itself may restart a shared Server on protocol-version mismatch",
+    "Mutation errors or unconfirmed post-state stop for manual review; no automatic mutation retry or rollback"
+  ]
+}
